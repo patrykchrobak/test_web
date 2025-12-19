@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pamięć – strona wspomnień</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand" title="Edytuj dane w src/data.js">
+      <div class="avatar" aria-hidden="true"></div>
+      <div>
+        <h1 id="brandTitle">Pamięć</h1>
+        <p id="brandSubtitle">Strona wspomnień (bez backendu)</p>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero" id="hero"></section>
+  <main id="app" class="grid" aria-live="polite"></main>
+
+  <footer class="wrap" style="padding-left:0;padding-right:0">
+    <div class="muted">
+      Treści: edytuj <b>src/data.js</b>. Media wrzuć do <b>img/</b> i <b>video/</b>.
+    </div>
+  </footer>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Podgląd">
+  <div class="box">
+    <div class="mhd">
+      <b id="mTitle">Podgląd</b>
+      <button class="x" id="mClose" type="button">Zamknij ✕</button>
+    </div>
+    <div class="mbd" id="mBody"></div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

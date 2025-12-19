@@ -1,0 +1,50 @@
+export const DATA = {
+  person: {
+    name: "Imię i Nazwisko",
+    years: "1952–2024",
+    tagline: "Ciepła, odważna, zawsze blisko ludzi.",
+    quote: { text: "Najważniejsze rzeczy są proste: obecność, rozmowa i czułość.", by: "— ulubione zdanie" },
+    quickFacts: ["Rodzina", "Przyjaciele", "Pasje", "Wspomnienia", "Zdjęcia i filmy"]
+  },
+  tabs: [
+    { id:"start", label:"Start" },
+    { id:"historia", label:"Historia życia" },
+    { id:"wspomnienia", label:"Wspomnienia" },
+    { id:"sny", label:"Sny" },
+    { id:"galeria", label:"Galeria" },
+    { id:"przeslij", label:"Prześlij materiały" }
+  ],
+  authors: [
+    { id:"ania", name:"Ania", relation:"córka" },
+    { id:"marek", name:"Marek", relation:"brat" },
+    { id:"basia", name:"Basia", relation:"przyjaciółka" }
+  ],
+  life: [
+    { year:"1952", title:"Narodziny", text:"Urodziła się w ...", tags:["rodzina"] },
+    { year:"1974", title:"Studia i pierwsza praca", text:"Zaczęła ...", tags:["praca"] },
+    { year:"1982", title:"Dom pełen ludzi", text:"Najbardziej lubiła ...", tags:["rodzina","dom"] },
+    { year:"2001", title:"Nowa pasja", text:"Odkryła ...", tags:["pasja"] }
+  ],
+  entries: [
+    { id:"e1", type:"historia", authorId:"ania", year:"1998", title:"Pierwsza wspólna podróż", tags:["wakacje","śmiech"], text:"Krótka historia..." },
+    { id:"e2", type:"historia", authorId:"basia", year:"2008", title:"Jak pomagała ludziom", tags:["serce","codzienność"], text:"Pamiętam, że zawsze..." },
+    { id:"e3", type:"sen", authorId:"marek", year:"2024", title:"Sen o pożegnaniu", tags:["pożegnanie","spokój"], text:"Śniło mi się, że..." },
+    { id:"e4", type:"sen", authorId:"ania", year:"2025", title:"Sen o ogrodzie", tags:["nadzieja"], text:"Był ogród i..." }
+  ],
+  media: [
+    { id:"m1", kind:"photo", title:"Uśmiech", year:"2005", tags:["rodzina"], src:"", caption:"Podpis zdjęcia" },
+    { id:"m2", kind:"photo", title:"Wakacje", year:"1998", tags:["wakacje"], src:"", caption:"Nad jeziorem..." },
+    { id:"v1", kind:"video", title:"Krótki film", year:"2012", tags:["święta"], src:"", caption:"Opis filmu..." }
+  ],
+  submit: {
+    email: "pamiec@twojadomena.pl",
+    subject: "Wspomnienie - " + "Imię i Nazwisko",
+    instructions: [
+      "Napisz: kto opowiada (imię + relacja).",
+      "Dodaj: typ (historia / sen / opis zdjęcia / opis filmu).",
+      "Jeśli możesz: rok/okres i krótki tytuł.",
+      "Załącz zdjęcia/filmy ręcznie w mailu (przycisk otworzy pocztę).",
+      "Dopisz zgodę na publikację: tak/nie."
+    ]
+  }
+};

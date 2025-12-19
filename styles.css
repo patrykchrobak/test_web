@@ -1,50 +1,219 @@
-export const DATA = {
-  person: {
-    name: "Imię i Nazwisko",
-    years: "1952–2024",
-    tagline: "Ciepła, odważna, zawsze blisko ludzi.",
-    quote: { text: "Najważniejsze rzeczy są proste: obecność, rozmowa i czułość.", by: "— ulubione zdanie" },
-    quickFacts: ["Rodzina", "Przyjaciele", "Pasje", "Wspomnienia", "Zdjęcia i filmy"]
-  },
-  tabs: [
-    { id:"start", label:"Start" },
-    { id:"historia", label:"Historia życia" },
-    { id:"wspomnienia", label:"Wspomnienia" },
-    { id:"sny", label:"Sny" },
-    { id:"galeria", label:"Galeria" },
-    { id:"przeslij", label:"Prześlij materiały" }
-  ],
-  authors: [
-    { id:"ania", name:"Ania", relation:"córka" },
-    { id:"marek", name:"Marek", relation:"brat" },
-    { id:"basia", name:"Basia", relation:"przyjaciółka" }
-  ],
-  life: [
-    { year:"1952", title:"Narodziny", text:"Urodziła się w ...", tags:["rodzina"] },
-    { year:"1974", title:"Studia i pierwsza praca", text:"Zaczęła ...", tags:["praca"] },
-    { year:"1982", title:"Dom pełen ludzi", text:"Najbardziej lubiła ...", tags:["rodzina","dom"] },
-    { year:"2001", title:"Nowa pasja", text:"Odkryła ...", tags:["pasja"] }
-  ],
-  entries: [
-    { id:"e1", type:"historia", authorId:"ania", year:"1998", title:"Pierwsza wspólna podróż", tags:["wakacje","śmiech"], text:"Krótka historia..." },
-    { id:"e2", type:"historia", authorId:"basia", year:"2008", title:"Jak pomagała ludziom", tags:["serce","codzienność"], text:"Pamiętam, że zawsze..." },
-    { id:"e3", type:"sen", authorId:"marek", year:"2024", title:"Sen o pożegnaniu", tags:["pożegnanie","spokój"], text:"Śniło mi się, że..." },
-    { id:"e4", type:"sen", authorId:"ania", year:"2025", title:"Sen o ogrodzie", tags:["nadzieja"], text:"Był ogród i..." }
-  ],
-  media: [
-    { id:"m1", kind:"photo", title:"Uśmiech", year:"2005", tags:["rodzina"], src:"", caption:"Podpis zdjęcia" },
-    { id:"m2", kind:"photo", title:"Wakacje", year:"1998", tags:["wakacje"], src:"", caption:"Nad jeziorem..." },
-    { id:"v1", kind:"video", title:"Krótki film", year:"2012", tags:["święta"], src:"", caption:"Opis filmu..." }
-  ],
-  submit: {
-    email: "pamiec@twojadomena.pl",
-    subject: "Wspomnienie - " + "Imię i Nazwisko",
-    instructions: [
-      "Napisz: kto opowiada (imię + relacja).",
-      "Dodaj: typ (historia / sen / opis zdjęcia / opis filmu).",
-      "Jeśli możesz: rok/okres i krótki tytuł.",
-      "Załącz zdjęcia/filmy ręcznie w mailu (przycisk otworzy pocztę).",
-      "Dopisz zgodę na publikację: tak/nie."
-    ]
-  }
-};
+:root{
+  --bg:#0b0f17;
+  --panel:#111827;
+  --panel2:#0f172a;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --line:#243244;
+  --accent:#7c3aed;
+  --accent2:#22c55e;
+  --danger:#ef4444;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: radial-gradient(1200px 600px at 20% 0%, #1b2550 0%, var(--bg) 50%, #070a10 100%);
+  color:var(--text);
+}
+
+a{ color:inherit; }
+.container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.row{
+  display:flex;
+  gap:12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+h1,h2,h3{ margin:0 0 10px; }
+h1{ font-size: 42px; letter-spacing: .3px; }
+h2{ font-size: 22px; }
+p{ margin: 8px 0; color: var(--muted); line-height: 1.5; }
+
+.badge{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  border:1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nav{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(10px);
+  background: rgba(7,10,16,0.65);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav-inner{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content: space-between;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap: wrap;
+}
+.tab{
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor:pointer;
+  font-size: 14px;
+}
+.tab[aria-current="page"]{
+  border-color: rgba(124,58,237,0.55);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.18);
+}
+
+.btn{
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor:pointer;
+}
+.btn.primary{
+  background: rgba(124,58,237,0.25);
+  border-color: rgba(124,58,237,0.5);
+}
+.btn.ghost{
+  background: transparent;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media(min-width: 900px){
+  .grid{ grid-template-columns: 1.3fr 0.7fr; }
+}
+
+.input, textarea{
+  width:100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  outline: none;
+}
+textarea{ min-height: 110px; resize: vertical; }
+
+.hr{
+  height:1px;
+  background: rgba(255,255,255,0.10);
+  margin: 14px 0;
+}
+
+.list{
+  display:grid;
+  gap:10px;
+}
+.item{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+  border-radius: 16px;
+  padding: 12px;
+}
+.item-title{
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+.item-meta{
+  display:flex;
+  gap:10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 13px;
+}
+.item-actions{
+  margin-top: 10px;
+  display:flex;
+  gap:8px;
+  flex-wrap: wrap;
+}
+
+.kpi{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+}
+.kpi > div{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+  border-radius: 16px;
+  padding: 12px;
+}
+.kpi .n{
+  font-size: 20px;
+  font-weight: 800;
+}
+.kpi .l{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Modal */
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 50;
+}
+.modal-backdrop.open{ display:flex; }
+
+.modal{
+  width:min(820px, 100%);
+  max-height: 85vh;
+  overflow:auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 14px;
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.modal-body{
+  padding: 8px 2px 2px;
+}
+.small{ font-size: 13px; color: var(--muted); }

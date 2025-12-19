@@ -1,145 +1,175 @@
-import { DATA } from "./data.js";
-import { state } from "./state.js";
-import { $, $$, esc, allTags, authorLabel } from "./utils.js";
-import { initModal, openModal } from "./modal.js";
+import { initialEntries } from "./data.js";
+import { state, loadEntries, saveEntries, setView, upsertEntry, deleteEntry } from "./state.js";
+import { qs } from "./utils.js";
+import { ensureModal, openModal } from "./modal.js";
 
-import { buildHero } from "./render/hero.js";
-import { buildNav, setActiveTab } from "./render/nav.js";
+import { renderNav } from "./render/nav.js";
+import { renderHero } from "./render/hero.js";
 import { renderStart } from "./render/start.js";
 import { renderHistoria } from "./render/historia.js";
-import { renderEntries } from "./render/entries.js";
+import { renderEntries, filterEntries, renderEntriesList } from "./render/entries.js";
 import { renderGaleria } from "./render/galeria.js";
 import { renderPrzeslij } from "./render/przeslij.js";
 
-function hydrateControls(){
-  const authorSel = $("#authorSel");
-  if(authorSel){
-    authorSel.value = state.filterAuthor;
-    authorSel.onchange = ()=>{ state.filterAuthor = authorSel.value; render(); };
-  }
+bootstrap();
+ensureModal();
 
-  const tagSel = $("#tagSel");
-  if(tagSel){
-    tagSel.value = state.filterTag;
-    tagSel.onchange = ()=>{ state.filterTag = tagSel.value; render(); };
-  }
+function bootstrap() {
+  // 1) Spróbuj wczytać z localStorage
+  const saved = loadEntries();
 
-  const searchInp = $("#searchInp");
-  if(searchInp){
-    searchInp.value = state.search;
-    searchInp.oninput = ()=>{ state.search = searchInp.value; render(); };
-  }
+  // 2) Jeśli brak — użyj danych startowych
+  state.entries = saved ?? initialEntries;
+  if (!saved) saveEntries(state.entries);
 
-  const kindSel = $("#mediaKindSel");
-  if(kindSel){
-    kindSel.value = state.mediaKind;
-    kindSel.onchange = ()=>{ state.mediaKind = kindSel.value; render(); };
-  }
-
-  // chipy tagów (historia)
-  $$(".chip[data-tag]").forEach(ch=>{
-    ch.onclick = ()=>{ state.filterTag = ch.dataset.tag; render(); };
-  });
-
-  // chipy autorów (start)
-  $$(".chip[data-author]").forEach(ch=>{
-    ch.onclick = ()=>{
-      state.filterAuthor = ch.dataset.author;
-      location.hash = "#wspomnienia";
-    };
-  });
-
-  // wpisy (modal)
-  $$(".item[data-entry]").forEach(it=>{
-    it.onclick = ()=>{
-      const id = it.dataset.entry;
-      const e = DATA.entries.find(x=>x.id===id);
-      if(!e) return;
-
-      openModal(`${e.type==="historia"?"Wspomnienie":"Sen"} · ${authorLabel(DATA, e.authorId)} · ${e.year}`, `
-        <div class="card" style="box-shadow:none; margin:0; border-radius:18px">
-          <div class="bd">
-            <h3 style="margin:0 0 8px; font-size:18px">${esc(e.title)}</h3>
-            <div class="muted" style="margin-bottom:10px">${esc(authorLabel(DATA, e.authorId))} · ${esc(e.year)}</div>
-            <div style="line-height:1.6; font-size:14px">${esc(e.text)}</div>
-            <div class="krow">${(e.tags||[]).map(t=>`<span class="k">#${esc(t)}</span>`).join("")}</div>
-          </div>
-        </div>
-      `);
-    };
-  });
-
-  // media (modal)
-  $$(".thumb[data-media]").forEach(t=>{
-    t.onclick = ()=>{
-      const id = t.dataset.media;
-      const m = DATA.media.find(x=>x.id===id);
-      if(!m) return;
-
-      const badge = `${m.kind==="photo"?"Zdjęcie":"Wideo"} · ${m.year || "—"}`;
-
-      let mediaHTML = "";
-      if(m.kind==="photo"){
-        mediaHTML = m.src
-          ? `<div class="media"><img src="${esc(m.src)}" alt="${esc(m.title)}"></div>`
-          : `<div class="note">Ustaw <code>src</code> dla tego zdjęcia w <code>DATA.media</code>.</div>`;
-      } else {
-        mediaHTML = m.src
-          ? `<div class="media"><video controls src="${esc(m.src)}"></video></div>`
-          : `<div class="note">Ustaw <code>src</code> dla tego wideo (np. <code>video/film.mp4</code>) w <code>DATA.media</code>.</div>`;
-      }
-
-      openModal(`${m.title} · ${badge}`, `
-        ${mediaHTML}
-        <div style="margin-top:10px">
-          <div class="muted">${esc(m.caption || "")}</div>
-          <div class="krow">${(m.tags||[]).map(t=>`<span class="k">#${esc(t)}</span>`).join("")}</div>
-        </div>
-      `);
-    };
-  });
-
-  // kopiowanie maila
-  const copyBtn = $("#copyEmail");
-  if(copyBtn){
-    copyBtn.onclick = async ()=>{
-      try{
-        await navigator.clipboard.writeText(DATA.submit.email);
-        copyBtn.textContent = "Skopiowano ✓";
-        setTimeout(()=>copyBtn.textContent="Skopiuj adres", 1200);
-      }catch{
-        alert("Nie udało się skopiować. Adres: " + DATA.submit.email);
-      }
-    };
-  }
-}
-
-function render(){
-  // tab z URL
-  state.tab = (location.hash || "#start").replace("#","");
-  setActiveTab(state.tab);
-
-  const app = $("#app");
-  let html = "";
-
-  if(state.tab==="start") html = renderStart(DATA);
-  else if(state.tab==="historia") html = renderHistoria(DATA, state);
-  else if(state.tab==="wspomnienia") html = renderEntries(DATA, state, "historia", "Wspomnienia");
-  else if(state.tab==="sny") html = renderEntries(DATA, state, "sen", "Sny");
-  else if(state.tab==="galeria") html = renderGaleria(DATA, state);
-  else if(state.tab==="przeslij") html = renderPrzeslij(DATA);
-  else { location.hash = "#start"; return; }
-
-  app.innerHTML = html;
-  hydrateControls();
-}
-
-function init(){
-  initModal();
-  buildHero(DATA);
-  buildNav(DATA);
+  mount();
+  bindGlobalHandlers();
   render();
-  window.addEventListener("hashchange", render);
 }
 
-init();
+function mount() {
+  const app = qs("#app");
+  app.innerHTML = `
+    ${renderNav(state.view)}
+    <div class="container">
+      <div id="heroSlot">${renderHero()}</div>
+      <div style="height:14px"></div>
+      <div id="viewSlot"></div>
+    </div>
+  `;
+  updateKpis();
+}
+
+function bindGlobalHandlers() {
+  // Nawigacja
+  document.addEventListener("click", (e) => {
+    const tab = e.target.closest("[data-view]");
+    if (tab) {
+      setView(tab.dataset.view);
+      rerenderNav();
+      render();
+      return;
+    }
+
+    // Reset localStorage
+    if (e.target && e.target.id === "resetStorage") {
+      localStorage.removeItem("pamiec_entries_v1");
+      state.entries = initialEntries;
+      saveEntries(state.entries);
+      updateKpis();
+      render();
+      return;
+    }
+
+    // Actions w entries
+    const actionBtn = e.target.closest("[data-action]");
+    if (actionBtn) {
+      const action = actionBtn.dataset.action;
+      const item = actionBtn.closest(".item[data-id]");
+      const id = item?.dataset?.id;
+      if (!id) return;
+
+      const entry = state.entries.find(x => x.id === id);
+      if (action === "preview" && entry) {
+        openModal(entry);
+      }
+      if (action === "delete") {
+        deleteEntry(id);
+        updateKpis();
+        render();
+      }
+    }
+  });
+
+  // Szukanie (delegacja — działa po renderach)
+  document.addEventListener("input", (e) => {
+    if (e.target && e.target.id === "search") {
+      const q = e.target.value;
+      const filtered = filterEntries(state.entries, q);
+      const list = qs("#entriesList");
+      if (list) list.innerHTML = renderEntriesList(filtered);
+    }
+  });
+
+  // Formularz
+  document.addEventListener("click", (e) => {
+    if (e.target?.id === "clearForm") {
+      setForm("", "", "", "");
+      return;
+    }
+
+    if (e.target?.id === "saveEntry") {
+      const title = qs("#fTitle")?.value?.trim() ?? "";
+      const date  = qs("#fDate")?.value?.trim() ?? "";
+      const tags  = (qs("#fTags")?.value ?? "").split(",").map(s => s.trim()).filter(Boolean);
+      const text  = qs("#fText")?.value?.trim() ?? "";
+
+      if (!title) {
+        alert("Dodaj tytuł.");
+        return;
+      }
+
+      const entry = {
+        id: cryptoId(),
+        title,
+        date,
+        tags,
+        text,
+        media: []
+      };
+
+      upsertEntry(entry);
+      updateKpis();
+      setForm("", "", "", "");
+      setView("entries");
+      rerenderNav();
+      render();
+    }
+  });
+}
+
+function render() {
+  const slot = qs("#viewSlot");
+  if (!slot) return;
+
+  if (state.view === "start") slot.innerHTML = renderStart();
+  else if (state.view === "historia") slot.innerHTML = renderHistoria(state.entries);
+  else if (state.view === "entries") slot.innerHTML = renderEntries(state.entries);
+  else if (state.view === "galeria") slot.innerHTML = renderGaleria(state.entries);
+  else if (state.view === "przeslij") slot.innerHTML = renderPrzeslij();
+  else slot.innerHTML = renderStart();
+
+  updateKpis();
+}
+
+function rerenderNav() {
+  const app = qs("#app");
+  const nav = qs(".nav", app);
+  if (nav) nav.outerHTML = renderNav(state.view);
+}
+
+function updateKpis() {
+  const entries = state.entries ?? [];
+  const media = entries.reduce((acc, e) => acc + ((e.media ?? []).length), 0);
+  const tagsSet = new Set(entries.flatMap(e => e.tags ?? []));
+
+  const kE = qs("#kpiEntries");
+  const kM = qs("#kpiMedia");
+  const kT = qs("#kpiTags");
+
+  if (kE) kE.textContent = String(entries.length);
+  if (kM) kM.textContent = String(media);
+  if (kT) kT.textContent = String(tagsSet.size);
+}
+
+function setForm(title, date, tags, text) {
+  const t = qs("#fTitle"); if (t) t.value = title;
+  const d = qs("#fDate");  if (d) d.value = date;
+  const g = qs("#fTags");  if (g) g.value = tags;
+  const x = qs("#fText");  if (x) x.value = text;
+}
+
+function cryptoId() {
+  // fallback jeśli crypto.randomUUID niedostępne
+  return (crypto?.randomUUID?.() ?? (Math.random().toString(16).slice(2) + Date.now().toString(16)));
+}

@@ -1,49 +1,32 @@
-import { esc, allTags } from "../utils.js";
-
-export function renderHistoria(DATA, state){
-  const tags = allTags(DATA);
-  const tagChips = ["all", ...tags];
-
-  const rows = DATA.life
-    .filter(x => state.filterTag==="all" || (x.tags||[]).includes(state.filterTag))
-    .map(x=>`
-      <div class="item" data-life="${esc(x.year)}|${esc(x.title)}">
-        <div class="l">
-          <h4>${esc(x.year)} · ${esc(x.title)}</h4>
-          <p>${esc(x.text)}</p>
-        </div>
-        <span class="badge">${(x.tags||[]).slice(0,2).map(esc).join(" · ") || "—"}</span>
-      </div>
-    `).join("");
+export function renderHistoria(entries) {
+  const sorted = [...entries].sort((a,b) => (a.date || "").localeCompare(b.date || ""));
+  const first = sorted[0]?.date ?? "—";
+  const last  = sorted[sorted.length - 1]?.date ?? "—";
 
   return `
-    <section class="card">
-      <div class="hd">
-        <div>
-          <h3>Historia życia</h3>
-          <div class="sub">Oś czasu i rozdziały</div>
-        </div>
-        <span class="badge">Oś</span>
+    <div class="card">
+      <h2>Historia</h2>
+      <p>Oś czasu na podstawie dat w wpisach.</p>
+      <div class="hr"></div>
+
+      <div class="row">
+        <span class="badge">Pierwsza data: <b style="color:var(--text)">${first}</b></span>
+        <span class="badge">Ostatnia data: <b style="color:var(--text)">${last}</b></span>
+        <span class="badge">Razem wpisów: <b style="color:var(--text)">${entries.length}</b></span>
       </div>
 
-      <div class="toolbar">
-        <div class="controls">
-          <select id="tagSel" aria-label="Filtr: tag">
-            <option value="all">Wszystkie tagi</option>
-            ${tags.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("")}
-          </select>
-        </div>
-        <div class="controls"></div>
+      <div class="hr"></div>
+      <div class="list">
+        ${sorted.map(e => `
+          <div class="item">
+            <div class="item-title">${e.title ?? "Bez tytułu"}</div>
+            <div class="item-meta">
+              <span>📅 ${e.date ?? "—"}</span>
+              <span>🏷️ ${(e.tags ?? []).join(", ") || "brak"}</span>
+            </div>
+          </div>
+        `).join("")}
       </div>
-
-      <div class="bd">
-        <div class="chips" style="margin-bottom:10px">
-          ${tagChips.map(t=>`
-            <span class="chip ${t===state.filterTag?'active':''}" data-tag="${esc(t)}">${t==="all" ? "Wszystkie" : esc(t)}</span>
-          `).join("")}
-        </div>
-        <div class="list">${rows || `<div class="muted">Brak wpisów dla tego filtra.</div>`}</div>
-      </div>
-    </section>
+    </div>
   `;
 }

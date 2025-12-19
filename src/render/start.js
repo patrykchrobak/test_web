@@ -1,41 +1,23 @@
-import { esc } from "../utils.js";
-
-export function renderStart(DATA){
+export function renderStart() {
   return `
-    <section class="card">
-      <div class="hd">
-        <div>
-          <h3>W skrócie</h3>
-          <div class="sub">Najważniejsze informacje i szybkie przejścia</div>
-        </div>
-        <span class="badge">Start</span>
+    <div class="grid">
+      <div class="card">
+        <h2>Jak edytować treści?</h2>
+        <p><b>Opcja A:</b> wpisy w <code>src/data.js</code> (na stałe w repo).</p>
+        <p><b>Opcja B:</b> dodawaj wpisy w „Prześlij” – zapiszą się w <b>localStorage</b> Twojej przeglądarki.</p>
+        <div class="hr"></div>
+        <h2>GitHub Pages — najważniejsze zasady</h2>
+        <p>1) <code>&lt;script type="module" src="./src/main.js"&gt;</code></p>
+        <p>2) Importy: zawsze względne i z <code>.js</code> (np. <code>import ... from "./render/nav.js"</code>)</p>
+        <p>3) Nie używaj ścieżek zaczynających się od <code>/</code></p>
       </div>
-      <div class="bd">
-        <p class="muted" style="margin-top:0">
-          Ta strona działa bez backendu. Treści są w kodzie, a media jako pliki lokalne.
-        </p>
-        <div class="krow">
-          ${DATA.tabs.filter(t=>t.id!=="start").map(t=>`<a class="btn" href="#${t.id}">Przejdź: ${esc(t.label)}</a>`).join("")}
-        </div>
-      </div>
-    </section>
 
-    <section class="card">
-      <div class="hd">
-        <div>
-          <h3>Najbliższe osoby</h3>
-          <div class="sub">Kto dzieli się historiami i snami</div>
-        </div>
-        <span class="badge">${DATA.authors.length} osób</span>
+      <div class="card">
+        <h2>Co dalej?</h2>
+        <p>Dodaj swoje pliki do <code>./img</code> i <code>./video</code> (foldery obok index.html), a potem używaj ich ścieżek typu <code>./img/plik.jpg</code>.</p>
+        <div class="hr"></div>
+        <p class="small">Jeśli wrzucisz repo na GitHub Pages jako <code>.../test_web/</code>, wszystko nadal działa, bo ścieżki są względne.</p>
       </div>
-      <div class="bd">
-        <div class="chips">
-          ${DATA.authors.map(a=>`<span class="chip" data-author="${a.id}" title="Filtruj">${esc(a.name)} · ${esc(a.relation)}</span>`).join("")}
-        </div>
-        <div class="note" style="margin-top:12px">
-          Kliknij osobę, a przejdziesz do <b>Wspomnień</b> z filtrem „czyje”.
-        </div>
-      </div>
-    </section>
+    </div>
   `;
 }

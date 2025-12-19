@@ -1,52 +1,42 @@
-import { esc } from "../utils.js";
-
-function mailtoHref(submit){
-  const body =
-`Kto opowiada: [imię, relacja]
-Typ: [historia / sen / opis zdjęcia / opis filmu]
-Tytuł: [...]
-Rok/okres: [...]
-Treść:
-[...]
-
-Załączniki: (dodaj zdjęcia/filmy ręcznie)
-Zgoda na publikację: [tak/nie]`;
-
-  const enc = (x)=>encodeURIComponent(x);
-  return `mailto:${enc(submit.email)}?subject=${enc(submit.subject)}&body=${enc(body)}`;
-}
-
-export function renderPrzeslij(DATA){
-  const s = DATA.submit;
-
+export function renderPrzeslij() {
   return `
-    <section class="card">
-      <div class="hd">
+    <div class="card">
+      <h2>Prześlij</h2>
+      <p>Dodaj wpis do localStorage (działa bez backendu).</p>
+      <div class="hr"></div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px">
         <div>
-          <h3>Prześlij materiały</h3>
-          <div class="sub">Wysyłka przez e-mail (bez backendu)</div>
+          <label class="small">Tytuł</label>
+          <input class="input" id="fTitle" placeholder="np. Wakacje" />
         </div>
-        <span class="badge">mail</span>
-      </div>
-
-      <div class="bd">
-        <p class="muted" style="margin-top:0">
-          Przycisk otworzy pocztę z szablonem. <b>Załączniki dodaj ręcznie.</b>
-        </p>
-
-        <div class="note">
-          <b>Adres:</b> ${esc(s.email)}<br/>
-          <b>Prośba:</b>
-          <ul style="margin:8px 0 0; padding-left:18px">
-            ${s.instructions.map(x=>`<li>${esc(x)}</li>`).join("")}
-          </ul>
-        </div>
-
-        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-          <a class="btn" href="${mailtoHref(s)}">Wyślij e-mail</a>
-          <button class="x" type="button" id="copyEmail">Skopiuj adres</button>
+        <div>
+          <label class="small">Data (YYYY-MM-DD)</label>
+          <input class="input" id="fDate" placeholder="2025-12-19" />
         </div>
       </div>
-    </section>
+
+      <div style="height:10px"></div>
+
+      <label class="small">Tagi (oddziel przecinkami)</label>
+      <input class="input" id="fTags" placeholder="rodzina, podróż, ..." />
+
+      <div style="height:10px"></div>
+
+      <label class="small">Treść</label>
+      <textarea id="fText" placeholder="Wpis..."></textarea>
+
+      <div style="height:10px"></div>
+
+      <div class="row" style="justify-content:space-between">
+        <div class="small">
+          Media dodasz ręcznie w <code>src/data.js</code> (np. <code>./img/foto.jpg</code>).
+        </div>
+        <div class="row">
+          <button class="btn" id="clearForm">Wyczyść</button>
+          <button class="btn primary" id="saveEntry">Zapisz wpis</button>
+        </div>
+      </div>
+    </div>
   `;
 }

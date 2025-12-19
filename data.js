@@ -63,7 +63,7 @@ const DATA = {
     { id:"m3", kind:"photo", title:"Wakacje", year:"1998", tags:["wakacje"], src:"", caption:"Nad jeziorem..." },
 
     // Wideo: lokalny plik mp4 (bez backendu najlepiej lokalnie) np. "video/film.mp4"
-    { id:"v1", kind:"video", title:"Krótki film", year:"2012", tags:["święta"], src:"", caption:"Opis filmu..." }
+    { id:"v1", kind:"video", title:"Krótki film", year:"2012", tags:["święta"], src:"video/lulu.mp4", caption:"Opis filmu..." }
   ],
   submit: {
     email: "patrykchrobak@o2.pl",

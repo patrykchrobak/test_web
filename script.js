@@ -385,30 +385,30 @@ function render(){
 
   // media modal
 $$(".thumb[data-media]").forEach(t=>{
-    t.onclick = ()=>{
-        const id = t.dataset.media;
-        const m = DATA.media.find(x=>x.id===id);
-        if(!m) return;
-        const badge = `${m.kind==="photo"?"Zdjęcie":"Wideo"} · ${m.year || "—"}`;
-        let mediaHTML = "";
-        if(m.kind==="photo"){
-            mediaHTML = m.src
-                ? `<div class="media" style="max-height: 80vh; overflow: auto; display: flex; justify-content: center; align-items: center;"><img src="${esc(m.src)}" alt="${esc(m.title)}" style="max-height: 80vh; width: auto;"></div>`
-                : `<div class="note">Ustaw <code>src</code> dla tego zdjęcia w <code>DATA.media</code>.</div>`;
-        } else {
-            mediaHTML = m.src
-                ? `<div class="media" style="max-height: 80vh; overflow: auto; display: flex; justify-content: center; align-items: center;"><video controls src="${esc(m.src)}" style="max-height: 80vh; width: auto;"></video></div>`
-                : `<div class="note">Ustaw <code>src</code> dla tego wideo (np. <code>video/film.mp4</code>) w <code>DATA.media</code>.</div>`;
-        }
+  t.onclick = ()=>{
+    const id = t.dataset.media;
+    const m = DATA.media.find(x=>x.id===id);
+    if(!m) return;
+    const badge = `${m.kind==="photo"?"Zdjęcie":"Wideo"} · ${m.year || "—"}`;
+    let mediaHTML = "";
+    if(m.kind==="photo"){
+      mediaHTML = m.src
+        ? `<img src="${esc(m.src)}" alt="${esc(m.title)}" style="width: auto; height: auto; max-height: 70vh; max-width: 100%;">`
+        : `<div class="note">Ustaw <code>src</code> dla tego zdjęcia w <code>DATA.media</code>.</div>`;
+    } else {
+      mediaHTML = m.src
+        ? `<video controls src="${esc(m.src)}" style="width: auto; height: auto; max-height: 70vh; max-width: 100%;"></video>`
+        : `<div class="note">Ustaw <code>src</code> dla tego wideo (np. <code>video/film.mp4</code>) w <code>DATA.media</code>.</div>`;
+    }
 
-        openModal(`${m.title} · ${badge}`, `
-            ${mediaHTML}
-            <div style="margin-top:10px">
-                <div class="muted">${esc(m.caption || "")}</div>
-                <div class="krow">${(m.tags||[]).map(t=>`<span class="k">#${esc(t)}</span>`).join("")}</div>
-            </div>
-        `);
-    };
+    openModal(`${m.title} · ${badge}`, `
+      <div style="display: flex; justify-content: center; align-items: flex-start;">${mediaHTML}</div>
+      <div style="margin-top:10px">
+        <div class="muted">${esc(m.caption || "")}</div>
+        <div class="krow">${(m.tags||[]).map(t=>`<span class="k">#${esc(t)}</span>`).join("")}</div>
+      </div>
+    `);
+  };
 });
 
   // copy email

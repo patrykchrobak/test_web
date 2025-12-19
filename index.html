@@ -1,16 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pamięć</title>
-
-  <link rel="stylesheet" href="./styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pamięć – strona wspomnień</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app"></div>
+<header>
+  <div class="topbar">
+    <div class="brand" title="Edytuj dane w obiekcie DATA w kodzie">
+      <div class="avatar" aria-hidden="true">
+        <img src="img/portret.png" alt="">
+      </div>
+      <div>
+        <h1 id="brandTitle">Pamięć</h1>
+        <p id="brandSubtitle">Strona wspomnień (bez backendu)</p>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+  </div>
+</header>
 
-  <!-- WAŻNE: ścieżka względna i type="module" -->
-  <script type="module" src="./src/main.js"></script>
+<div class="wrap">
+  <section class="hero" id="hero"></section>
+
+  <main id="app" class="grid" aria-live="polite"></main>
+
+  <footer class="wrap" style="padding-left:0;padding-right:0">
+    <div class="muted">Wszystko jest w jednym pliku. Treści: edytuj sekcję <b>DATA</b>. Pliki (zdjęcia/wideo) wrzuć obok HTML i ustaw ścieżki.</div>
+  </footer>
+</div>
+
+<!-- modal -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Podgląd">
+  <div class="box">
+    <div class="mhd">
+      <b id="mTitle">Podgląd</b>
+      <button class="x" id="mClose" type="button">Zamknij ✕</button>
+    </div>
+    <div class="mbd" id="mBody"></div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

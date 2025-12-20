@@ -78,18 +78,21 @@ function toolbarHTML({showAuthor=true, showTag=true, showSearch=true, extraRight
             ${DATA.authors.map(a=>`<option value="${a.id}">${esc(a.name)} (${esc(a.relation)})</option>`).join("")}
           </select>
         ` : ""}
-        ${showTag ? `
-          <select id="tagSel" aria-label="Filtr: tag">
-            <option value="all">Wszystkie tagi</option>
-            ${tags.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("")}
-          </select>
-        ` : ""}
         ${showSearch ? `<input id="searchInp" placeholder="Szukaj tytułu lub treści…" aria-label="Szukaj" />` : ""}
       </div>
       <div class="controls">${extraRight}</div>
     </div>
   `;
 }
+
+function debounce(fn, delay = 250){
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
 
 function renderStart(){
   const p = DATA.person;
@@ -104,7 +107,7 @@ function renderStart(){
       </div>
       <div class="bd">
         <p class="muted" style="margin-top:0">
-          Ta strona działa bez backendu. Możesz uzupełniać treści w kodzie i wrzucać pliki obok HTML.
+          Witaj na stronie poświęconej pamięci <b>${esc(p.name)}</b> (${esc(p.years)}).
         </p>
         <div class="krow">
           ${DATA.tabs.filter(t=>t.id!=="start").map(t=>`<a class="btn" href="#${t.id}">Przejdź: ${esc(t.label)}</a>`).join("")}
@@ -125,7 +128,7 @@ function renderStart(){
           ${DATA.authors.map(a=>`<span class="chip" data-author="${a.id}" title="Filtruj">${esc(a.name)} · ${esc(a.relation)}</span>`).join("")}
         </div>
         <div class="note" style="margin-top:12px">
-          Kliknij osobę, a przejdziesz do <b>Wspomnień</b> z ustawionym filtrem „czyje”.
+          Kliknij osobę, a przejdziesz do <b>Wspomnień</b>
         </div>
       </div>
     </section>
@@ -143,7 +146,6 @@ function renderHistoria(){
           <h4>${esc(x.year)} · ${esc(x.title)}</h4>
           <p>${esc(x.text)}</p>
         </div>
-        <span class="badge">${(x.tags||[]).slice(0,2).map(esc).join(" · ") || "—"}</span>
       </div>
     `).join("");
 
@@ -157,14 +159,7 @@ function renderHistoria(){
         <span class="badge">Oś</span>
       </div>
 
-      ${toolbarHTML({showAuthor:false, showTag:true, showSearch:false})}
-
       <div class="bd">
-        <div class="chips" style="margin-bottom:10px">
-          ${tagChips.map(t=>`
-            <span class="chip ${t===state.filterTag?'active':''}" data-tag="${esc(t)}">${t==="all" ? "Wszystkie" : esc(t)}</span>
-          `).join("")}
-        </div>
         <div class="list">${rows || `<div class="muted">Brak wpisów dla tego filtra.</div>`}</div>
       </div>
     </section>
@@ -188,7 +183,7 @@ function renderEntries(type, titleLabel){
         <h4>${esc(e.title)}</h4>
         <p>${esc(e.text)}</p>
       </div>
-      <span class="badge">${esc(authorLabel(e.authorId))} · ${esc(e.year)}</span>
+      <span class="badge">${esc(e.year)}</span>
     </div>
   `).join("");
 
@@ -265,8 +260,7 @@ function renderGaleria(){
 
       <div class="bd">
         <div class="gallery">${list || `<div class="muted">Brak mediów dla tych filtrów.</div>`}</div>
-        <div class="note" style="margin-top:12px">
-          Tip: wrzuć pliki do <b>img/</b> i <b>video/</b>, a w <code>DATA.media</code> ustaw np. <code>src: "img/01.jpg"</code> albo <code>src: "video/film.mp4"</code>.
+        <div style="margin-top:12px">
         </div>
       </div>
     </section>
@@ -296,16 +290,12 @@ function renderPrzeslij(){
     <section class="card">
       <div class="hd">
         <div>
-          <h3>Prześlij materiały</h3>
-          <div class="sub">Bez backendu: wysyłka przez e-mail</div>
+          <h3>Prześlij</h3>
+          <div class="sub">Wysyłanie materiałów przez e-mail</div>
         </div>
         <span class="badge">mail</span>
       </div>
       <div class="bd">
-        <p class="muted" style="margin-top:0">
-          Przycisk poniżej otworzy Twoją aplikację pocztową z gotowym szablonem wiadomości.
-          <b>Załączniki (zdjęcia/filmy) dodaj ręcznie</b> w mailu.
-        </p>
 
         <div class="note">
           <b>Adres:</b> ${esc(s.email)}<br/>
@@ -324,7 +314,109 @@ function renderPrzeslij(){
   `;
 }
 
+function renderDrzewo(){
+  const parents = (DATA.family || []).filter(x => ["tata","mama","ojciec","matka"].includes(String(x.relation||"").toLowerCase()));
+
+  const p = DATA.person;
+
+  // prosta klasyfikacja na podstawie "relation"
+  const norm = (s)=>String(s||"").toLowerCase();
+
+  const spouse = DATA.authors.filter(a => ["mąż","żona","partner","partnerka"].includes(norm(a.relation)));
+  const children = DATA.authors.filter(a => ["syn","córka","dziecko"].includes(norm(a.relation)));
+  const siblings = DATA.authors.filter(a => ["brat","siostra","rodzeństwo"].includes(norm(a.relation)));
+  const others = DATA.authors.filter(a =>
+    !spouse.includes(a) && !children.includes(a) && !siblings.includes(a)
+  );
+
+  const years = (p) => {
+    const b = p?.born ? String(p.born) : "";
+    const d = p?.died ? String(p.died) : "";
+    if (b && d) return `${b}–${d}`;
+    if (b && !d) return `${b}–`;
+    return "";
+  };
+
+  const node = (title, subtitle="", yearsTxt="") => `
+    <div class="tree-node">
+      <div class="tree-title">${esc(title)}</div>
+      ${subtitle ? `<div class="tree-sub">${esc(subtitle)}</div>` : ""}
+      ${yearsTxt ? `<div class="tree-years">${esc(yearsTxt)}</div>` : ""}
+    </div>
+  `;
+
+
+  return `
+    <section class="card">
+      <div class="hd">
+        <div>
+          <h3>Drzewo genealogiczne</h3>
+          <div class="sub">Rodzina i bliscy</div>
+        </div>
+        <span class="badge">rodzina</span>
+      </div>
+
+      <div class="bd">
+        <div class="tree-wrap">
+        ${parents.length ? `
+          <div class="tree-section">
+            <div class="tree-section-title">Rodzice</div>
+            <div class="tree-row">
+              ${parents.map(p => node(p.name, p.relation, years(p))).join("")}
+            </div>
+          </div>
+          <div class="tree-line"></div>
+        ` : ""}
+
+          <!-- Rząd: małżonek + osoba -->
+          <div class="tree-row">
+            ${spouse.length ? spouse.map(s => node(s.name, s.relation)).join("") : ""}
+            ${node(p.name, p.years)}
+          </div>
+
+          ${children.length ? `
+            <div class="tree-line"></div>
+            <div class="tree-row">
+              ${children.map(c => node(c.name, c.relation)).join("")}
+            </div>
+          ` : `<div class="muted" style="margin-top:10px">Brak dzieci w danych.</div>`}
+
+          <!-- Rodzeństwo -->
+          ${siblings.length ? `
+            <div class="tree-section">
+              <div class="tree-section-title">Rodzeństwo</div>
+              <div class="tree-row">
+                ${siblings.map(s => node(s.name, s.relation)).join("")}
+              </div>
+            </div>
+          ` : ""}
+
+          <!-- Inne osoby (np. przyjaciele) -->
+          ${others.length ? `
+            <div class="tree-section">
+              <div class="tree-section-title">Inne osoby</div>
+              <div class="tree-row">
+                ${others.map(o => node(o.name, o.relation)).join("")}
+              </div>
+            </div>
+          ` : ""}
+
+          <div class="note" style="margin-top:12px">
+          </div>
+
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function render(){
+  // zapamiętaj fokus i pozycję kursora PRZED przebudową DOM
+  const active = document.activeElement;
+  const focusId = active && active.id ? active.id : null;
+  const selStart = active && typeof active.selectionStart === "number" ? active.selectionStart : null;
+  const selEnd   = active && typeof active.selectionEnd === "number" ? active.selectionEnd : null;
+
   setActiveTab();
 
   const app = $("#app");
@@ -333,6 +425,7 @@ function render(){
   else if(state.tab==="historia") html = renderHistoria();
   else if(state.tab==="wspomnienia") html = renderEntries("historia","Wspomnienia");
   else if(state.tab==="sny") html = renderEntries("sen","Sny");
+  else if(state.tab==="drzewo") html = renderDrzewo();     
   else if(state.tab==="galeria") html = renderGaleria();
   else if(state.tab==="przeslij") html = renderPrzeslij();
   else { state.tab="start"; html = renderStart(); }
@@ -347,7 +440,13 @@ function render(){
   if(tagSel){ tagSel.value = state.filterTag; tagSel.onchange = ()=>{ state.filterTag = tagSel.value; render(); }; }
 
   const searchInp = $("#searchInp");
-  if(searchInp){ searchInp.value = state.search; searchInp.oninput = ()=>{ state.search = searchInp.value; render(); }; }
+  if(searchInp){
+    searchInp.value = state.search;
+    searchInp.oninput = debounce(() => {
+      state.search = searchInp.value;
+      render();
+    }, 250);
+  }
 
   const kindSel = $("#mediaKindSel");
   if(kindSel){ kindSel.value = state.mediaKind; kindSel.onchange = ()=>{ state.mediaKind = kindSel.value; render(); }; }
@@ -389,7 +488,7 @@ $$(".thumb[data-media]").forEach(t=>{
     const id = t.dataset.media;
     const m = DATA.media.find(x=>x.id===id);
     if(!m) return;
-    const badge = `${m.kind==="photo"?"Zdjęcie":"Wideo"} · ${m.year || "—"}`;
+    const badge = `${m.kind==="photo"?"Zdjęcie":"Wideo"} · ${m.year || ""}`;
     let mediaHTML = "";
     if(m.kind==="photo"){
       mediaHTML = m.src
@@ -423,6 +522,18 @@ $$(".thumb[data-media]").forEach(t=>{
         alert("Nie udało się skopiować. Adres: " + DATA.submit.email);
       }
     };
+  }
+
+    // przywróć fokus PO renderze
+  if(focusId){
+    const el = document.getElementById(focusId);
+    if(el){
+      el.focus({ preventScroll: true });
+      if(selStart !== null && selEnd !== null && typeof el.setSelectionRange === "function"){
+        // przywróć kursor (żeby nie skakał na koniec)
+        el.setSelectionRange(selStart, selEnd);
+      }
+    }
   }
 }
 

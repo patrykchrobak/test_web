@@ -177,15 +177,19 @@ function filteredEntries(type){
 }
 
 function renderEntries(type, titleLabel){
-  const list = filteredEntries(type).map(e=>`
-    <div class="item" data-entry="${esc(e.id)}">
-      <div class="l">
-        <h4>${esc(e.title)}</h4>
-        <p>${esc(e.text)}</p>
+  const list = filteredEntries(type).map(e=>{
+    const maxLen = 150;
+    const text = e.text.length > maxLen ? e.text.substring(0, maxLen) + "..." : e.text;
+    return `
+      <div class="item" data-entry="${esc(e.id)}">
+        <div class="l">
+          <h4>${esc(e.title)}</h4>
+          <p>${esc(text)}</p>
+        </div>
+        <span class="badge">${esc(e.year)}</span>
       </div>
-      <span class="badge">${esc(e.year)}</span>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   return `
     <section class="card">
@@ -225,7 +229,6 @@ function renderGaleria(){
               <div style="padding:14px; text-align:center">
                 <div style="font-weight:600; margin-bottom:6px">${esc(m.title)}</div>
                 <div class="muted">${esc(badge)}</div>
-                <div class="muted" style="margin-top:8px; font-size:12px">Ustaw <code>src</code> w DATA.media</div>
               </div>
             `}
           </div>
@@ -242,7 +245,7 @@ function renderGaleria(){
       <div class="hd">
         <div>
           <h3>Galeria</h3>
-          <div class="sub">Zdjęcia i filmy (lokalne pliki lub ścieżki)</div>
+          <div class="sub">Zdjęcia i filmy</div>
         </div>
         <span class="badge">Media</span>
       </div>
@@ -370,8 +373,8 @@ function renderDrzewo(){
 
           <!-- Rząd: małżonek + osoba -->
           <div class="tree-row">
-            ${spouse.length ? spouse.map(s => node(s.name, s.relation)).join("") : ""}
             ${node(p.name, p.years)}
+            ${spouse.length ? spouse.map(s => node(s.name, s.relation)).join("") : ""}
           </div>
 
           ${children.length ? `
@@ -493,11 +496,11 @@ $$(".thumb[data-media]").forEach(t=>{
     if(m.kind==="photo"){
       mediaHTML = m.src
         ? `<img src="${esc(m.src)}" alt="${esc(m.title)}" style="width: auto; height: auto; max-height: 70vh; max-width: 100%;">`
-        : `<div class="note">Ustaw <code>src</code> dla tego zdjęcia w <code>DATA.media</code>.</div>`;
+        : `<div class="note"></div>`;
     } else {
       mediaHTML = m.src
         ? `<video controls src="${esc(m.src)}" style="width: auto; height: auto; max-height: 70vh; max-width: 100%;"></video>`
-        : `<div class="note">Ustaw <code>src</code> dla tego wideo (np. <code>video/film.mp4</code>) w <code>DATA.media</code>.</div>`;
+        : `<div class="note"></div>`;
     }
 
     openModal(`${m.title} · ${badge}`, `

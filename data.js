@@ -50,35 +50,14 @@ const DATA = {
     { year:"1995", title:"Początek wspólnej drogi", text:"Wzięła ślub z Witoldem, rozpoczynając nowy etap życia." },
     { year:"1975", title:"Początek historii", text:"Przyszła na świat 15 maja 1975 roku w Bochni." },
   ],
-  entries: [
-    {
-      id:"e1", type:"historia", authorId:"ania", year:"1998",
-      title:"Pierwsza wspólna podróż",
-      text:"Krótka historia... (kliknij, żeby zobaczyć pełny podgląd)."
-    },
-    {
-      id:"e2", type:"historia", authorId:"basia", year:"2008",
-      title:"Jak pomagała ludziom",
-      text:"Pamiętam, że zawsze..."
-    },
-    {
-      id:"e3", type:"sen", authorId:"marek", year:"2024",
-      title:"Sen o pożegnaniu",
-      text:"Śniło mi się, że..."
-    },
-    {
-      id:"e4", type:"sen", authorId:"ania", year:"2025",
-      title:"Sen o ogrodzie",
-      text:"Był ogród i..."
-    }
-  ],
-  media: [
-    // Zdjęcia: wrzuć pliki obok index.html i ustaw src np. "img/01.jpg"
-    { id:"m2", kind:"photo", title:"Uśmiech", year:"2005", src:"img/portret.png", caption:"Podpis zdjęcia (opcjonalnie)" },
+  
 
-    // Wideo: lokalny plik mp4 (bez backendu najlepiej lokalnie) np. "video/film.mp4"
-    { id:"v1", kind:"video", title:"Krótki film", year:"2012", src:"video/lulu.mp4", caption:"Opis filmu..." }
-  ],
+  entries: (typeof DATA_ENTRIES_ALL !== "undefined" ? DATA_ENTRIES_ALL : [
+    ...(typeof DATA_ENTRIES_WSPOMNIENIA !== "undefined" ? DATA_ENTRIES_WSPOMNIENIA : []),
+    ...(typeof DATA_ENTRIES_SNY !== "undefined" ? DATA_ENTRIES_SNY : [])
+  ]),
+
+  media: (typeof MEDIA_DATA !== "undefined" ? MEDIA_DATA : []),
   submit: {
     email: "patrykchrobak@o2.pl",
     subject: "Wspomnienie - " + "Imię i Nazwisko",
